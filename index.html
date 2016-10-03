@@ -1,0 +1,71 @@
+<html lang="en" ng-app="horaireTec">
+<head>
+    <meta charset="utf-8">
+    <title>Horaires TEC</title>
+
+    <script type="text/javascript" src="./assets/bower_components/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="./assets/bower_components/angular/angular.min.js"></script>
+    <script type="text/javascript" src="./assets/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="./assets/js/horairetec.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="./assets/bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/base.css">
+</head>
+<body ng-controller="SchedulesController">
+    
+    <div class="container">
+        <div class="row top-buffer">
+            <div class="col-xs-12 col-md-4">
+                <div class="form-group">
+                    <select class="form-control chosen-select" ng-model="lineSelected" data-ng-options="line.value for line in lines" ng-change="changeLine(lineSelected)">
+                        <option value="">Select line</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" ng-if="schedule != undefined">
+            <div class="col-xs-12 col-md-4">
+                <h4>{{ schedule.desc }}</h4>
+            </div>
+            <div class="col-xs-12 col-md-4">
+                <h5>Direction : {{ schedule.dir }}</h5>
+            </div>
+            <div class="col-xs-12 col-md-3">
+                <a ng-click="switchLineDirection()" type="button" class="btn btn-default">Change line direction</a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12 col-md-2"></div>
+            <div class="col-xs-12 col-md-1 text-center" ng-repeat="(index, trip) in schedule.horaire.trips" ng-if="index >= pageStart && index <= pageEnd">
+                <a href="#">{{ trip.id }}</a>
+            </div>
+        </div>
+
+        <div class="row" ng-repeat="(index, stop) in schedule.horaire.stops">
+            <div class="col-xs-12 col-md-2 col-schedule">
+                <strong>{{ stop.desc }}</strong>
+            </div>
+            <div class="col-xs-12 col-md-1 col-schedule text-center" ng-repeat="(index2, trip) in schedule.horaire.trips" ng-if="index2 >= pageStart && index2 <= pageEnd">
+                <span ng-if="trip.pst[index].h != null">
+                    {{ trip.pst[index].h }}h<span ng-if="trip.pst[index].m < 10">0</span>{{ trip.pst[index].m }}
+                </span>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-md-3">
+            <nav>
+                <ul class="pagination">
+                    <li>
+                        <a ng-click="pageDown()">&laquo;</a>
+                    </li>
+                    <li>
+                        <a ng-click="pageUp()">&raquo;</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,14 @@
+.top-buffer {
+    margin-top: 10px;
+}
+.bottom-buffer {
+    margin-bottom: 10px;
+}
+a[ng-click] {
+    cursor: pointer;
+}
+.col-schedule {
+    margin-top: 10px;
+    border-top: 1px solid #d1d1d1;
+    padding-top: 10px;
+}
