@@ -1,6 +1,7 @@
 var https = require("https");
 var moment = require("moment");
-var cloudscraper = require("cloudscraper")
+var cloudscraper = require("cloudscraper");
+var fs = require("fs");
 
 var options = {
     headers: {
@@ -15,13 +16,55 @@ var options = {
 exports.requestSchedule = function(line, callback) {
     var today = moment();
     requestPath = "https://infotec.be/published/Horaire.axd?date=" + today.format("YYYY-MM-DD") + "&ligne=" + line;
-    cloudscraper.get(requestPath, (error, response, body) => {
-        if (error) {
-            callback("{ 'status': 'error' }");
+
+    fs.readFile("cache_schedule_" + line + ".json", (err, data) => {
+        if (err) {
+            console.log("writing log file ...");
+            cloudscraper.get(requestPath, (error, response, body) => {
+                if (error) {
+                    callback("{ 'status': 'error' }");
+                } else {
+                    var cache = {
+                        last_update: today.format("YYYY-MM-DD H:m:s.SSSS"),
+                        data: JSON.parse(body)
+                    };
+                    fs.writeFile("cache_schedule_" + line + ".json", JSON.stringify(cache), (err) => {
+                        if (err) {
+                            console.error(err);
+                            callback("{ 'status': 'error' }");
+                        } else {
+                            callback(body);
+                        }
+                    });
+                }
+            });
         } else {
-            callback(body);
+            var cache = JSON.parse(data);
+            var diff = today.diff(cache.last_update);
+            if (diff > 18000000) {
+                console.log("cache is too old, refetching");
+                cloudscraper.get(requestPath, (error, response, body) => {
+                    if (error) {
+                        callback("{ 'status': 'error' }");
+                    } else {
+                        cache.last_update = today.format("YYYY-MM-DD H:m:s.SSSS");
+                        cache.data = JSON.parse(body);
+                        fs.writeFile("cache_schedule_" + line + ".json", JSON.stringify(cache), (err) => {
+                            if (err) {
+                                callback("{ 'status': 'error' }");
+                            } else {
+                                callback(body);
+                            }
+                        });
+                    }
+                });
+            } else {
+                console.log("Fetching data from cache");
+                callback(data);
+            }
         }
-    })
+    });
+
     // options.path = "/published/Horaire.axd?date=" + today.format("YYYY-MM-DD") + "&ligne=" + line;
     // var response = "";
     // var req = https.request(options, (res) => {
@@ -43,12 +86,54 @@ exports.requestSchedule = function(line, callback) {
 
 exports.requestLines = function(callback) {
     var requestPath = "https://infotec.be/published/Ligne.axd?query=";
+    var today = moment();
 
-    cloudscraper.get(requestPath, (error, response, body) => {
-        if (error) {
-            callback("{ 'status': 'error' }");
+    fs.readFile("cache_line.json", (err, data) => {
+        if (err) {
+            console.log("writing log file ...");
+            cloudscraper.get(requestPath, (error, response, body) => {
+                if (error) {
+                    console.error(error);
+                } else {
+                    var cache = {
+                        last_update: today.format("YYYY-MM-DD H:m:s.SSSS"),
+                        data: JSON.parse(body)
+                    };
+                    fs.writeFile("cache_line.json", JSON.stringify(cache), (err) => {
+                        if (err) {
+                            console.error(err);
+                            callback("{ 'status': 'error' }");
+                        } else {
+                            callback(body);
+                        }
+                    });
+                }
+            });
         } else {
-            callback(body);
+            var cache = JSON.parse(data);
+            var diff = today.diff(cache.last_update);
+            if (diff > 18000000) {
+                console.log("cache is too old, refetching");
+                cloudscraper.get(requestPath, (error, response, body) => {
+                    if (error) {
+                        callback("{ 'status': 'error' }");
+                    } else {
+                        cache.last_update = today.format("YYYY-MM-DD H:m:s.SSSS");
+                        cache.data = JSON.parse(body);
+                        fs.writeFile("cache_line.json", JSON.stringify(cache), (err) => {
+                            if (err) {
+                                callback("{ 'status': 'error' }");
+                            } else {
+                                callback(body);
+                            }
+                        });
+                    }
+                });
+
+            } else {
+                console.log("Fetching data from cache");
+                callback(data);
+            }
         }
     });
 
