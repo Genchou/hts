@@ -20,13 +20,3 @@ app.get("/lines", (req, res, next) => {
 app.listen(15678, () => {
     console.log("server started on 15678");
 });
-
-
-// var cloudscraper = require("cloudscraper");
-// cloudscraper.get("https://infotec.be/published/Ligne.axd?query=ixe", function(error, response, body) {
-//     if (error) {
-//         console.error(error);
-//     } else {
-//         console.log(body);
-//     }
-// });
