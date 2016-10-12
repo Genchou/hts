@@ -60,7 +60,8 @@ exports.requestSchedule = function(line, callback) {
                 });
             } else {
                 console.log("Fetching data from cache");
-                callback(data);
+                var cache = JSON.parse(data);
+                callback(JSON.stringify(cache.data));
             }
         }
     });
@@ -132,7 +133,8 @@ exports.requestLines = function(callback) {
 
             } else {
                 console.log("Fetching data from cache");
-                callback(data);
+                var cache = JSON.parse(data);
+                callback(JSON.stringify(cache.data));
             }
         }
     });
